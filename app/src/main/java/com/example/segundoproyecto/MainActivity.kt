@@ -1,6 +1,5 @@
 package com.example.segundoproyecto
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
@@ -8,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Switch
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 
@@ -27,9 +27,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        recycler.setLayoutManager(LinearLayoutManager(this));
-        val adaptador = Adaptador(contactos, this)
-        recycler.adapter = adaptador
+        recycler.setLayoutManager(LinearLayoutManager(this))
+
+        recycler.adapter = Adaptador(contactos, this, { contacto : Contacto-> elementoPulsado(contacto) })
 
         cargar()
 
@@ -38,6 +38,26 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(intent, CONTACTO_GUARDADO)
         })
 
+        val sw: Switch = findViewById(R.id.switchFav)
+        sw?.setOnCheckedChangeListener({ _ , isChecked ->
+            if (isChecked) {
+                cargarFavoritos()
+            }else{
+                cargar()
+            }
+        })
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        cargar()
+    }
+
+    private fun elementoPulsado(contacto : Contacto) {
+        val intent = Intent(this, ReviewContacto::class.java)
+        intent.putExtra("contacto", contacto)
+        startActivity(intent)
     }
 
 
@@ -72,11 +92,30 @@ class MainActivity : AppCompatActivity() {
 
         val contacto = gson.fromJson(jsonString, ArrayContactos::class.java)
 
-        contactos = ArrayList <Contacto> ()
+        contactos = ArrayList ()
         for (c:Contacto in contacto.contactos!!.iterator()){
-            contactos.add(Contacto(c.nombre, c.numero, c.img))
+            contactos.add(Contacto(c.id, ""+c.nombre, ""+c.numero, ""+c.img, ""+c.direccion, ""+c.favorito))
         }
-        val adaptador = Adaptador(contactos, this)
+        val adaptador = Adaptador(contactos, this, { contacto : Contacto-> elementoPulsado(contacto) })
+
+        recycler.adapter = adaptador
+    }
+
+    fun cargarFavoritos () {
+
+        val gson = Gson()
+
+        val jsonString = leerUrl("http://iesayala.ddns.net/albertomendoza/php/jsoncontactos.php")
+
+        val contacto = gson.fromJson(jsonString, ArrayContactos::class.java)
+
+        contactos = ArrayList ()
+        for (c:Contacto in contacto.contactos!!.iterator()){
+            if (c.favorito.equals("S")) {
+                contactos.add(Contacto(c.id, c.nombre, c.numero, c.img, c.direccion, c.favorito))
+            }
+        }
+        val adaptador = Adaptador(contactos, this, { contacto : Contacto-> elementoPulsado(contacto) })
 
         recycler.adapter = adaptador
     }
@@ -91,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                     contactosFiltrados.add(c)
                 }
             }
-            val adaptador = Adaptador(contactosFiltrados, this)
+            val adaptador = Adaptador(contactosFiltrados, this, { contacto : Contacto-> elementoPulsado(contacto) })
 
             recycler.adapter = adaptador
         }else{
@@ -100,7 +139,7 @@ class MainActivity : AppCompatActivity() {
             for (c: Contacto in contactos) {
                     contactosFiltrados.add(c)
             }
-            val adaptador = Adaptador(contactosFiltrados, this)
+            val adaptador = Adaptador(contactosFiltrados, this, { contacto : Contacto-> elementoPulsado(contacto) })
 
             recycler.adapter = adaptador
         }

@@ -5,23 +5,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.StrictMode
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.contenido.imageViewContacto
 import kotlinx.android.synthetic.main.nuevo_contacto.*
 import java.io.IOException
 import java.net.URL
-import android.content.Context.MODE_PRIVATE
 import java.io.FileNotFoundException
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.provider.MediaStore
 import java.io.ByteArrayOutputStream
-import android.graphics.drawable.BitmapDrawable
-import java.io.FileInputStream
-import android.R.attr.bitmap
-
 
 
 
@@ -61,7 +54,7 @@ class NuevoContacto : AppCompatActivity() {
     }
 
     fun insertar(v : View){
-        if ((etNombre.length()>0) and (etNumero.length()>0)) {
+        if ((tvNombre.length()>0) and (tvNumero.length()>0)) {
 
             val stream = ByteArrayOutputStream()
             btm?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
@@ -76,7 +69,7 @@ class NuevoContacto : AppCompatActivity() {
                 e2.printStackTrace()
             }
 
-            val url = "http://iesayala.ddns.net/albertomendoza/php/insertarcontacto.php/?Nombre=" + etNombre.text + "&Tlfn=" + etNumero.text + "&IMG=" + urlImagen
+            val url = "http://iesayala.ddns.net/albertomendoza/php/insertarcontacto.php/?Nombre=" + tvNombre.text + "&Tlfn=" + tvNumero.text + "&IMG=" + urlImagen + "&direccion=" + tvDireccion.text
 
             //Ejecutar la url
             var policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()

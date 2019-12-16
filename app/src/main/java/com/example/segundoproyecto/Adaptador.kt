@@ -15,7 +15,7 @@ import java.io.FileInputStream
 
 
 
-class Adaptador (var contactos : ArrayList<Contacto>, val context: Context):RecyclerView.Adapter<Adaptador.ViewHolder>() {
+class Adaptador (var contactos : ArrayList<Contacto>, val context: Context, val clickListener: (Contacto) -> Unit):RecyclerView.Adapter<Adaptador.ViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,25 +28,26 @@ class Adaptador (var contactos : ArrayList<Contacto>, val context: Context):Recy
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val s: String = context.filesDir.path
-        holder.enlazaItems(contactos[position], s)
+        holder.enlazaItems(contactos[position], s, clickListener)
     }
 
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun enlazaItems(datos:Contacto, s: String){
-            val tvNombre = itemView.tvNombre
+
+
+
+        fun enlazaItems(datos:Contacto, s: String, clickListener: (Contacto) -> Unit){
+            val tvNombre = itemView.tvDireccion
             val tvNumero = itemView.tvNumero
             val img = itemView.imageViewContacto
 
-
+            itemView.setOnClickListener { clickListener(datos)}
 
             tvNombre.text=datos.nombre
             tvNumero.text=datos.numero
 
             var bitmap: Bitmap? = null
-
-
             try {
                 val fileInputStream = FileInputStream(s + "/"+datos.img)
                 bitmap = BitmapFactory.decodeStream(fileInputStream)
@@ -54,8 +55,6 @@ class Adaptador (var contactos : ArrayList<Contacto>, val context: Context):Recy
             } catch (io: IOException) {
                 io.printStackTrace()
             }
-
-
             img.setImageBitmap(bitmap)
 
 
